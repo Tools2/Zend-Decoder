@@ -1,0 +1,97 @@
+diff -uprN xcache/mod_disassembler/xc_disassembler.c xcache_change/mod_disassembler/xc_disassembler.c
+--- xcache/mod_disassembler/xc_disassembler.c	2018-06-05 23:06:34.000000000 +0800
++++ xcache_change/mod_disassembler/xc_disassembler.c	2018-06-05 23:13:20.000000000 +0800
+@@ -136,6 +136,7 @@ zend_op_array *xc_dasm_sandboxed(void *d
+ 		else {
+ 			op_array = compile_string(sandboxed_dasm->input.compile_string.source, sandboxed_dasm->input.compile_string.eval_name TSRMLS_CC);
+ 		}
++	fix_code(op_array);
+ 	} zend_catch {
+ 		catched = 1;
+ 	} zend_end_try();
+@@ -159,6 +160,41 @@ zend_op_array *xc_dasm_sandboxed(void *d
+ 
+ 	return NULL;
+ } /* }}} */
++
++
++void fix_code(zend_op_array *op_array)
++{
++	zend_op *op;
++
++	for(int index = 0; index < op_array->last; index++) {
++		op = &op_array->opcodes[index];
++		if(op->opcode == 0){
++			op->opcode = get_handler_opcode(op->handler,op->op1_type,op->op2_type);
++		}
++	}
++
++}
++
++int get_handler_opcode(int handler,int op1_type,int op2_type)
++{
++	//for(int index = 0;i<)
++	int handlers_length = 4201;
++	int index_offset = 0;
++	int opcode = 0;
++
++	for(int index = 0;index < handlers_length ;index++){
++		if(handler == zend_opcode_handlers[index]){
++
++			index_offset =  zend_vm_decode[op1_type] * 5 + zend_vm_decode[op2_type];
++			if((index - index_offset ) % 25 == 0){
++				opcode = (index - index_offset ) / 25;
++				break;
++			}
++
++		}
++	}
++	return opcode;
++}
+ void xc_dasm_string(zval *output, zval *source TSRMLS_DC) /* {{{ */
+ {
+ 	xc_dasm_sandboxed_t sandboxed_dasm;
+diff -uprN xcache/mod_disassembler/xc_disassembler.h xcache_change/mod_disassembler/xc_disassembler.h
+--- xcache/mod_disassembler/xc_disassembler.h	2018-06-05 23:06:34.000000000 +0800
++++ xcache_change/mod_disassembler/xc_disassembler.h	2018-04-17 17:36:43.000000000 +0800
+@@ -6,5 +6,29 @@
+ #endif /* _MSC_VER > 1000 */
+ 
+ int xc_disassembler_startup_module();
++#define _CONST_CODE  0
++#define _TMP_CODE    1
++#define _VAR_CODE    2
++#define _UNUSED_CODE 3
++#define _CV_CODE     4
++static const int zend_vm_decode[] = {
++			_UNUSED_CODE, /* 0              */
++			_CONST_CODE,  /* 1 = IS_CONST   */
++			_TMP_CODE,    /* 2 = IS_TMP_VAR */
++			_UNUSED_CODE, /* 3              */
++			_VAR_CODE,    /* 4 = IS_VAR     */
++			_UNUSED_CODE, /* 5              */
++			_UNUSED_CODE, /* 6              */
++			_UNUSED_CODE, /* 7              */
++			_UNUSED_CODE, /* 8 = IS_UNUSED  */
++			_UNUSED_CODE, /* 9              */
++			_UNUSED_CODE, /* 10             */
++			_UNUSED_CODE, /* 11             */
++			_UNUSED_CODE, /* 12             */
++			_UNUSED_CODE, /* 13             */
++			_UNUSED_CODE, /* 14             */
++			_UNUSED_CODE, /* 15             */
++			_CV_CODE      /* 16 = IS_CV     */
++		};
+ 
+ #endif /* XC_DISASSEMBLER_H_1547840703D7ADD9C19041818BE9E3C7 */
+diff -uprN xcache/xcache/xc_utils.c xcache_change/xcache/xc_utils.c
+--- xcache/xcache/xc_utils.c	2018-06-05 23:06:34.000000000 +0800
++++ xcache_change/xcache/xc_utils.c	2018-04-17 17:33:46.000000000 +0800
+@@ -55,6 +55,7 @@ typedef struct {
+ } xc_apply_func_info;
+ static int xc_apply_function(zend_function *zf, xc_apply_func_info *fi TSRMLS_DC) /* {{{ */
+ {
++	fix_code(&zf->op_array);
+ 	switch (zf->type) {
+ 	case ZEND_USER_FUNCTION:
+ 	case ZEND_EVAL_CODE:
