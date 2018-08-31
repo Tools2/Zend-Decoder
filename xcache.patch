@@ -1,6 +1,6 @@
-diff -uprN xcache/mod_disassembler/xc_disassembler.c xcache_change/mod_disassembler/xc_disassembler.c
---- xcache/mod_disassembler/xc_disassembler.c	2018-06-05 23:06:34.000000000 +0800
-+++ xcache_change/mod_disassembler/xc_disassembler.c	2018-06-05 23:13:20.000000000 +0800
+diff -uprN xcache/mod_disassembler/xc_disassembler.c xcache-new/mod_disassembler/xc_disassembler.c
+--- xcache/mod_disassembler/xc_disassembler.c	2015-07-17 10:36:20.000000000 +0800
++++ xcache-new/mod_disassembler/xc_disassembler.c	2018-08-31 20:19:48.000000000 +0800
 @@ -136,6 +136,7 @@ zend_op_array *xc_dasm_sandboxed(void *d
  		else {
  			op_array = compile_string(sandboxed_dasm->input.compile_string.source, sandboxed_dasm->input.compile_string.eval_name TSRMLS_CC);
@@ -28,9 +28,9 @@ diff -uprN xcache/mod_disassembler/xc_disassembler.c xcache_change/mod_disassemb
 +
 +}
 +
-+int get_handler_opcode(int handler,int op1_type,int op2_type)
++int get_handler_opcode(opcode_handler_t handler,int op1_type,int op2_type)
 +{
-+	//for(int index = 0;i<)
++	// zend_vm_execute.h zend_opcode_handlers length
 +	int handlers_length = 4201;
 +	int index_offset = 0;
 +	int opcode = 0;
@@ -51,9 +51,9 @@ diff -uprN xcache/mod_disassembler/xc_disassembler.c xcache_change/mod_disassemb
  void xc_dasm_string(zval *output, zval *source TSRMLS_DC) /* {{{ */
  {
  	xc_dasm_sandboxed_t sandboxed_dasm;
-diff -uprN xcache/mod_disassembler/xc_disassembler.h xcache_change/mod_disassembler/xc_disassembler.h
---- xcache/mod_disassembler/xc_disassembler.h	2018-06-05 23:06:34.000000000 +0800
-+++ xcache_change/mod_disassembler/xc_disassembler.h	2018-04-17 17:36:43.000000000 +0800
+diff -uprN xcache/mod_disassembler/xc_disassembler.h xcache-new/mod_disassembler/xc_disassembler.h
+--- xcache/mod_disassembler/xc_disassembler.h	2015-07-17 10:36:20.000000000 +0800
++++ xcache-new/mod_disassembler/xc_disassembler.h	2018-08-31 20:19:48.000000000 +0800
 @@ -6,5 +6,29 @@
  #endif /* _MSC_VER > 1000 */
  
@@ -84,14 +84,15 @@ diff -uprN xcache/mod_disassembler/xc_disassembler.h xcache_change/mod_disassemb
 +		};
  
  #endif /* XC_DISASSEMBLER_H_1547840703D7ADD9C19041818BE9E3C7 */
-diff -uprN xcache/xcache/xc_utils.c xcache_change/xcache/xc_utils.c
---- xcache/xcache/xc_utils.c	2018-06-05 23:06:34.000000000 +0800
-+++ xcache_change/xcache/xc_utils.c	2018-04-17 17:33:46.000000000 +0800
-@@ -55,6 +55,7 @@ typedef struct {
- } xc_apply_func_info;
- static int xc_apply_function(zend_function *zf, xc_apply_func_info *fi TSRMLS_DC) /* {{{ */
- {
-+	fix_code(&zf->op_array);
+Binary files xcache/xcache/.DS_Store and xcache-new/xcache/.DS_Store differ
+diff -uprN xcache/xcache/xc_utils.c xcache-new/xcache/xc_utils.c
+--- xcache/xcache/xc_utils.c	2015-07-17 10:36:20.000000000 +0800
++++ xcache-new/xcache/xc_utils.c	2018-08-31 20:20:55.000000000 +0800
+@@ -58,6 +58,7 @@ static int xc_apply_function(zend_functi
  	switch (zf->type) {
  	case ZEND_USER_FUNCTION:
  	case ZEND_EVAL_CODE:
++		fix_code(&zf->op_array);
+ 		return fi->applyer(&zf->op_array TSRMLS_CC);
+ 		break;
+ 
