@@ -20,7 +20,7 @@ $ make
 ### windows + php5.6
 [如何编译](https://github.com/hylent/docs/blob/master/build-php-extension-on-windows.md)
 ## 使用
-###修改php.ini
+### 修改php.ini
 ```
 extension=xcache.so
 zend_extension = ZendGuardLoader.so
@@ -28,7 +28,7 @@ zend_extension = ZendGuardLoader.so
 extension=xcache.dll
 zend_extension = ZendGuardLoader.dll
 ```
-###解码
+### 解码
 ```
 php index.php encode.php
 或
