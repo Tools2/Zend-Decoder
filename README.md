@@ -18,13 +18,15 @@ $ make
 [编译参考](https://github.com/lighttpd/xcache/blob/master/INSTALL)
 
 #### windows + php5.6
-
+[如何编译](https://github.com/hylent/docs/blob/master/build-php-extension-on-windows.md)
 ### 使用
-修改php.ini,增加一行
+修改php.ini,增加
 ```
 extension=xcache.so
+zend_extension = ZendGuardLoader.so
 或
 extension=xcache.dll
+zend_extension = ZendGuardLoader.dll
 ```
 
 ```
