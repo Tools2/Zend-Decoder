@@ -3015,17 +3015,20 @@ class Decompiler
             $body = ob_get_clean();
             $hasReturn = false;
             $hasReturnByRef = false;
-            foreach ($func['op_array']['opcodes'] as $op) {
-                switch ($op['opcode']) {
-                    case XC_RETURN:
-                        $hasReturn = true;
-                        break;
-
-                    case XC_RETURN_BY_REF:
-                        $hasReturnByRef = true;
-                        break;
+            if (is_array($func['op_array']['opcodes']) ) {
+                foreach ($func['op_array']['opcodes'] as $op) {
+                    switch ($op['opcode']) {
+                        case XC_RETURN:
+                            $hasReturn = true;
+                            break;
+    
+                        case XC_RETURN_BY_REF:
+                            $hasReturnByRef = true;
+                            break;
+                    }
                 }
             }
+
             if ($hasReturn && $hasReturnByRef) {
                 $this->output->printfError("WARN: both return and return-by-ref present" . PHP_EOL);
             }
