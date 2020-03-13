@@ -5,7 +5,7 @@ $srcdir = dirname(__FILE__);
 require_once("$srcdir/Decompiler4.class.php");
 
 $file = $argv[1];
-decode("$srcdir/$file");
+decode($file);
 function decode($path){
     $dc = new Decompiler(array("php"));
     $dc->decompileFile($path);
